@@ -1963,12 +1963,12 @@ startPPPD(ClientSession *session)
 	argv[c++] = "pty";
 
 	/* Let's hope service-name does not have ' in it... */
-	snprintf(buffer, sizeof(buffer), "%s -n -I %s -e %u:%02x:%02x:%02x:%02x:%02x:%02x%s -S '%s'",
+	snprintf(buffer, sizeof(buffer), "%s -n -I %s -e %u:%02x:%02x:%02x:%02x:%02x:%02x%s -S '%s' -K %d",
 		pppoe_path, session->ethif->name,
 		(unsigned int) ntohs(session->sess),
 		session->eth[0], session->eth[1], session->eth[2],
 		session->eth[3], session->eth[4], session->eth[5],
-		PppoeOptions, session->serviceName);
+		PppoeOptions, session->serviceName, optFillPkt);
 	argv[c++] = strdup(buffer);
 	if (!argv[c-1]) {
 	    /* TODO: Send a PADT */
@@ -2024,14 +2024,6 @@ startPPPD(ClientSession *session)
 	argv[c++] = "1492";
 	argv[c++] = "mtu";
 	argv[c++] = "1492";
-    }
-
-    if (optFillPkt > 0) {
-	argv[c++] = "-K";
-	sprintf(buffer, "%u", optFillPkt);
-	if (!(argv[c++] = strdup(buffer))) {
-	    exit(EXIT_FAILURE);
-	}
     }
 
     argv[c++] = NULL;
