@@ -59,16 +59,16 @@ all: $(TARGETS)
 	@echo ""
 	@echo "Type 'make install' as root to install the software."
 
-pppoe-sniff: pppoe-sniff.o if.o common.o debug.o
+pppoe-sniff: if.o pppoe-sniff.o common.o debug.o
 	@CC@ -o $@ $^ $(LDFLAGS) $(STATIC)
 
-pppoe-server: pppoe-server.o if.o debug.o common.o md5.o control_socket.o libevent/libevent.a @PPPOE_SERVER_DEPS@
+pppoe-server: if.o pppoe-server.o debug.o common.o md5.o control_socket.o libevent/libevent.a @PPPOE_SERVER_DEPS@
 	@CC@ -o $@ @RDYNAMIC@ $^ $(LDFLAGS) -Llibevent -levent $(STATIC)
 
-pppoe: pppoe.o if.o debug.o common.o ppp.o discovery.o
+pppoe: if.o pppoe.o debug.o common.o ppp.o discovery.o
 	@CC@ -o $@ $^ $(LDFLAGS) $(STATIC)
 
-pppoe-relay: relay.o if.o debug.o common.o
+pppoe-relay: if.o relay.o debug.o common.o
 	@CC@ -o $@ $^ $(LDFLAGS) $(STATIC)
 
 pppoe.o: pppoe.c pppoe.h

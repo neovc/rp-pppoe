@@ -52,6 +52,8 @@ int optFloodDiscovery    = 0;   /* Flood server with discovery requests.
 				   USED FOR STRESS-TESTING ONLY.  DO NOT
 				   USE THE -F OPTION AGAINST A REAL ISP */
 
+int optFillPkt		= 0;	/* Fill Ethernet Frame Length to specific length */
+
 PPPoEConnection *Connection = NULL; /* Must be global -- used
 				       in signal handler */
 
@@ -298,6 +300,7 @@ usage(char const *argv0)
 	    "   -k             -- Kill a session with PADT (requires -e)\n"
 	    "   -d             -- Perform discovery, print session info and exit.\n"
 	    "   -f disc:sess   -- Set Ethernet frame types (hex).\n"
+	    "   -K len         -- Fill Ethernet frame length to len.\n"
 	    "   -h             -- Print usage information.\n\n"
 	    "RP-PPPoE Version %s, Copyright (C) 2001-2018 Roaring Penguin Software Inc.\n"
 	    "                 %*s  Copyright (C) 2018-2023 Dianne Skoll\n"
@@ -353,9 +356,9 @@ main(int argc, char *argv[])
     openlog("pppoe", LOG_PID, LOG_DAEMON);
 
 #ifdef DEBUGGING_ENABLED
-    options = "I:VAT:D:hS:C:UW:sm:np:e:kdf:F:t:";
+    options = "I:VAT:D:hS:C:UW:sm:np:e:kdf:F:t:K:";
 #else
-    options = "I:VAT:hS:C:UW:sm:np:e:kdf:F:t:";
+    options = "I:VAT:hS:C:UW:sm:np:e:kdf:F:t:K:";
 #endif
     while((opt = getopt(argc, argv, options)) != -1) {
 	switch(opt) {
@@ -505,6 +508,9 @@ main(int argc, char *argv[])
 	    exit(EXIT_SUCCESS);
 	case 'A':
 	    conn.printACNames = 1;
+	    break;
+	case 'K':
+	    optFillPkt = atoi(optarg);
 	    break;
 	case 'h':
 	    usage(argv[0]);

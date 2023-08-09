@@ -36,6 +36,8 @@ uint16_t SessType, DiscType;
 char *IfName = NULL;		/* Interface name */
 char *ServiceName = NULL;	/* Service name   */
 
+int optFillPkt		= 0;	/* Fill Ethernet Frame Length to specific length */
+
 /**********************************************************************
 *%FUNCTION: parsePADRTags
 *%ARGUMENTS:

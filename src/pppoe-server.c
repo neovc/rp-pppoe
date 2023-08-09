@@ -172,6 +172,8 @@ int RandomizeSessionNumbers = 0;
 /* Do we pass the "unit" option to pppd?  (2.4 or greater) */
 int PassUnitOptionToPPPD = 0;
 
+int optFillPkt		= 0;	/* Fill Ethernet Frame Length to specific length */
+
 static PPPoETag hostUniq;
 static PPPoETag relayId;
 static PPPoETag receivedCookie;
@@ -1172,6 +1174,7 @@ usage(char const *argv0)
     fprintf(stderr, "   -H url         -- Send URL in a HURL tag in PADM packet after PADS.\n");
     fprintf(stderr, "   -F             -- Run in foreground.\n");
     fprintf(stderr, "   -U socket      -- Use control socket.\n");
+    fprintf(stderr, "   -K len         -- Fill Ethernet frame length to len.\n");
     fprintf(stderr, "   -h             -- Print usage information.\n\n");
     fprintf(stderr, "PPPoE-Server Version %s, Copyright (C) 2001-2009 Roaring Penguin Software Inc.\n", RP_VERSION);
     fprintf(stderr, "                     %*s  Copyright (C) 2018-2023 Dianne Skoll\n", (int) strlen(RP_VERSION), "");
@@ -1209,7 +1212,7 @@ main(int argc, char **argv)
     char const *s;
     int cookie_ok = 0;
 
-    char const *options = "X:ix:hI:C:L:R:T:m:FN:f:O:o:skp:lrudPS:q:Q:H:M:U:g:";
+    char const *options = "X:ix:hI:C:L:R:T:m:FN:f:O:o:skp:lrudPS:q:Q:H:M:U:g:K:";
 
     if (getuid() != geteuid() ||
 	getgid() != getegid()) {
@@ -1455,6 +1458,10 @@ main(int argc, char **argv)
 
 	case 'U':
 	    SET_STRING(unix_control, optarg);
+	    break;
+
+	case 'K':
+	    optFillPkt = atoi(optarg);
 	    break;
 
 	case 'h':

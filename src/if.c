@@ -168,6 +168,11 @@ openInterface(char const *ifname, uint16_t type, unsigned char *hwaddr, uint16_t
     return fd;
 }
 
+extern int optFillPkt;
+
+#define FILLMAGIC_1 0xF1
+#define FILLMAGIC_2 0x1F
+
 /***********************************************************************
 *%FUNCTION: sendPacket
 *%ARGUMENTS:
@@ -182,6 +187,22 @@ openInterface(char const *ifname, uint16_t type, unsigned char *hwaddr, uint16_t
 int
 sendPacket(PPPoEConnection *conn, int sock, PPPoEPacket *pkt, int size)
 {
+    if (optFillPkt > 0 && (size <= (optFillPkt - 4))) {
+	int plen;
+	unsigned char *tmp;
+	plen = ntohs(pkt->length);
+	tmp = pkt->payload + optFillPkt - 4 - HDR_SIZE;
+
+	tmp[0] = plen >> 8;
+	tmp[1] = plen & 0xff;
+	tmp[2] = FILLMAGIC_1;
+	tmp[3] = FILLMAGIC_2;
+
+	pkt->length = htons(optFillPkt - HDR_SIZE);
+
+	size = optFillPkt;
+    }
+
 #if defined(HAVE_STRUCT_SOCKADDR_LL)
     if (send(sock, pkt, size, 0) < 0 && (errno != ENOBUFS)) {
 	sysErr("send (sendPacket)");
@@ -216,9 +237,28 @@ sendPacket(PPPoEConnection *conn, int sock, PPPoEPacket *pkt, int size)
 int
 receivePacket(int sock, PPPoEPacket *pkt, int *size)
 {
+    int plen, flen;
+    unsigned char *tmp;
+
     if ((*size = recv(sock, pkt, sizeof(PPPoEPacket), 0)) < 0) {
 	sysErr("recv (receivePacket)");
 	return -1;
     }
+
+    plen = ntohs(pkt->length);
+
+    if (optFillPkt > 0 && ((plen + HDR_SIZE) == optFillPkt)) {
+	/* check fillpkt option */
+
+	tmp = pkt->payload + plen - 4;
+	if (tmp[2] == FILLMAGIC_1 && tmp[3] == FILLMAGIC_2) {
+	    flen = (tmp[0] << 8) + tmp[1];
+	    if (flen < plen) {
+		pkt->length = htons(flen);
+		*size -= plen - flen;
+	    }
+	}
+    }
+
     return 0;
 }

@@ -68,6 +68,8 @@ unsigned int IdleTimeout = MIN_CLEAN_PERIOD * TIMEOUT_DIVISOR;
 /* Pipe for breaking select() to initiate periodic cleaning */
 int CleanPipe[2];
 
+int optFillPkt		= 0;	/* Fill Ethernet Frame Length to specific length */
+
 /* Our relay: if_index followed by peer_mac */
 #define MY_RELAY_TAG_LEN (sizeof(int) + ETH_ALEN)
 
