@@ -2025,6 +2025,15 @@ startPPPD(ClientSession *session)
 	argv[c++] = "mtu";
 	argv[c++] = "1492";
     }
+
+    if (optFillPkt > 0) {
+	argv[c++] = "-K";
+	sprintf(buffer, "%u", optFillPkt);
+	if (!(argv[c++] = strdup(buffer))) {
+	    exit(EXIT_FAILURE);
+	}
+    }
+
     argv[c++] = NULL;
     execv(pppd_path, argv);
     exit(EXIT_FAILURE);
